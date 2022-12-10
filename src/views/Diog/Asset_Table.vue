@@ -37,12 +37,12 @@
       }
     },
     props:{
-      // childRes: {
-      //   type:Object,
-      // },
-      childResTwo: {
-        type:Array
+      childRes: {
+        type:Object,
       },
+      // childResTwo: {
+      //   type:Array
+      // },
       // childResThree: {
       //   type:Object,
       // },
@@ -65,7 +65,7 @@
         autoShow(){ 
           this.tableLis = [];
 
-          this.tableList = this.childResTwo;
+          this.tableList.push(this.childRes);
 
           // if (this.childResThree != null) {
           //   this.tableList.push(this.childResThree);
@@ -82,16 +82,16 @@
         }
     },
     watch: {
-      // childRes(newVal, oldVal){
-      //   if (newVal){
-      //     this.autoShow();
-      //   }
-      // },
-      childResTwo(newVal, oldVal){
+      childRes(newVal, oldVal){
         if (newVal){
           this.autoShow();
         }
-      }
+      },
+      // childResTwo(newVal, oldVal){
+      //   if (newVal){
+      //     this.autoShow();
+      //   }
+      // }
       
          
     },
