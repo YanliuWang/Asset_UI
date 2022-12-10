@@ -44,20 +44,30 @@ export default {
   },
   methods: {
     submitForm() {
-      //localStorage.setItem("token", "111");
-      //this.$router.push({ path: "/Home-Page" });
+      // localStorage.setItem("token", "111");
+      // this.$router.push({ path: "/Home-Page" });
       let formData = {};
-      login_request(formData)
-      .then((res) => {
-        console.log('login res', res)
+
+      if (this.userName != "" && this.passWord != "") {
+        formData.userName = this.userName;
+        formData.passWord = this.passWord;
+
         this.$nextTick(()=>{
-          this.$router.push({ path: "/Home-Page" });
+          login_request(formData)
+            .then((res) => {
+              console.log('login res', res)
+              this.$nextTick(()=>{
+                this.$router.push({ path: "/Home-Page" });
+              })
+            })
+            .catch((err) => {
+                console.log(err, 'hit error for add request')
+                this.$message.error('login failed, please check your username and passward.');
+            })
         })
-      })
-      .catch((err) => {
-          console.log(err, 'hit error for add request')
-          this.$message.error('login failed, please check your username and passward.');
-      })
+      }
+
+      
     },
   },
 }

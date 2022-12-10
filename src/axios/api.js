@@ -2,10 +2,10 @@ import request from './request.js';
 import Qs from 'qs';
 
 //login
-// http://localhost:8080/user/login    data ?
+// http://localhost:8080/login
 export function login_request(formData) {
 	return request({
-		url: '/user/login',
+		url: '/login',
 		method: 'post',
 	    data:formData,
 		headers:{

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import getCookie from './cookieUtil.js'
 
-var baseUrl = 'http://localhost:8081';
+var baseUrl = 'http://localhost:8080';
 const service = axios.create({
 	baseURL: baseUrl,
 	//process.env.NODE_ENV === 'production' ? process.env.VUE_APP_URL + '/api' : '/api',
