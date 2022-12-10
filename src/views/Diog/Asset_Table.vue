@@ -2,7 +2,6 @@
     <div style="margin: 10px 20px;">
         <el-table 
             border 
-            ref="multipleTable" 
             :data="tableList" 
             row-key="getRowKey"
             highlight-current-row
@@ -10,11 +9,14 @@
             :fit="true" 
             style="width: 100%; margin-top: 30px;">
             <el-table-column type="selection" width="50" reserve-selection=""></el-table-column>
-            <el-table-column prop="id" label="ID" width="80" class-name="bg_blue"></el-table-column>
-            <el-table-column prop="category" label="Category" width="120"> </el-table-column>
-            <el-table-column prop="AssetName" label="Asset Name" width="140"> </el-table-column>
-            <el-table-column prop="Country" label="Country" width="140"> </el-table-column>
-            <el-table-column prop="City" label="City" width="140"> </el-table-column>
+            <el-table-column prop="assetId" label="assetId" width="80" class-name="bg_blue"></el-table-column>
+            <el-table-column prop="category" label="category" width="120"> </el-table-column>
+            <el-table-column prop="assetName" label="assetName" width="140"> </el-table-column>
+            <el-table-column prop="country" label="country" width="140"> </el-table-column>
+            <el-table-column prop="city" label="city" width="140"> </el-table-column>
+            <el-table-column prop="rfidId" label="rfidId" width="140"> </el-table-column>
+            <el-table-column prop="state" label="state" width="140"> </el-table-column>
+            <el-table-column prop="value" label="value" width="140"> </el-table-column>
             <el-table-column fixed="right" label="Oprations" width="300">
               <template slot-scope="scope">
                 <el-button @click="checkLocation(scope.$index,scope.row)" type="text" size="small">Location Tracking</el-button>
@@ -31,10 +33,25 @@
     name: 'AssetDetails',
     data(){
       return{
-        tableList: [
-            {}
-        ], 
+        tableList: [], 
       }
+    },
+    props:{
+      // childRes: {
+      //   type:Object,
+      // },
+      childResTwo: {
+        type:Array
+      },
+      // childResThree: {
+      //   type:Object,
+      // },
+      // childResFour: {
+      //   type:Object,
+      // },
+      // childResFive: {
+      //   type:Object,
+      // },
     },
     methods:{
       //remove-asset
@@ -44,6 +61,42 @@
             console.log('删除的问题id:',id) 
             this.$emit("remove-asset",id);//传给父组件id值
         },
+
+        autoShow(){ 
+          this.tableLis = [];
+
+          this.tableList = this.childResTwo;
+
+          // if (this.childResThree != null) {
+          //   this.tableList.push(this.childResThree);
+          // }
+
+          // if (this.childResFour != null) {
+          //   this.tableList.push(this.childResFour);
+          // }
+
+          // if (this.childResFive != null) {
+          //   this.tableList.push(this.childResFive);
+          // }
+          
+        }
+    },
+    watch: {
+      // childRes(newVal, oldVal){
+      //   if (newVal){
+      //     this.autoShow();
+      //   }
+      // },
+      childResTwo(newVal, oldVal){
+        if (newVal){
+          this.autoShow();
+        }
+      }
+      
+         
+    },
+    mounted(){
+      
     }
   }
   </script>

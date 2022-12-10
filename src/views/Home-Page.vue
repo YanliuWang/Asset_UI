@@ -4,13 +4,49 @@
         <div id="selects">
             <el-input
               class="search"
-              placeholder="Please enter Asset id/name/country/city "
+              placeholder="Please enter Asset id"
               prefix-icon="el-icon-search"
               @change="handleInputVal"
-              v-throttle="autoShow"
-              v-model="inputSearch">
+              v-model="inputSearchOne">
+            </el-input> 
+            
+            <el-input
+              style = "margin-left: 20px;"
+              class="search"
+              placeholder="Please enter category "
+              prefix-icon="el-icon-search"
+              @change="handleInputValTwo"
+              v-model="inputSearchTwo">
+            </el-input>
+
+            <el-input
+              class="search"
+              style = "margin-left: 20px;"
+              placeholder="Please enter name "
+              prefix-icon="el-icon-search"
+              @change="handleInputValThree"
+              v-model="inputSearchThree">
+            </el-input>
+
+            <el-input
+              class="search"
+              style = "margin-left: 20px;"
+              placeholder="Please enter city "
+              prefix-icon="el-icon-search"
+              @change="handleInputValFour"
+              v-model="inputSearchFour">
+            </el-input>
+
+            <el-input
+              class="search"
+              style = "margin-left: 20px;"
+              placeholder="Please enter country "
+              prefix-icon="el-icon-search"
+              @change="handleInputValFive"
+              v-model="inputSearchFive">
             </el-input>
         </div>
+
         <div>
           <el-button type="danger" @click="importBtn" class="addButton">Import Assets</el-button>
           <el-button type="warning" @click="exportBtn" class="addButton">Export Assets</el-button>
@@ -28,6 +64,12 @@
     </div>
     <div>
       <Diog-Table
+      ref=”myUpdate”
+      :childRes = "getData"
+      :childResTwo = "getDataTwo"
+      :childResThree = "getDataThree"
+      :childResFour = "getDataFour"
+      :childResFive = "getDataFive"
       @remove-asset="handleRemoveAsset"
       ></Diog-Table>
     </div>
@@ -37,34 +79,45 @@
 <script>
 import DiogBist from './Diog/Asset_Add.vue';
 import DiogTable from './Diog/Asset_Table.vue';
-import { asset_byId } from '../axios/api.js';
+import { asset_byId, asset_byCountry, asset_byCategory, asset_byName, asset_byCity} from '../axios/api.js';
 
 export default {
   name:'HomePage',
   data(){ 
     return { 
      openOff:false,
-     inputSearch:'',
+     inputSearchOne:'',
+     inputSearchTwo:'',
+     inputSearchThree:'',
+     inputSearchFour:'',
+     inputSearchFive:'',
+     
+     getData:{},
+     getDataTwo:{},
+     getDataThree:{},
+     getDataFour:{},
+     getDataFive:{},
+
     }
   }, 
   // 搜索框 自定义指令 实时监听输入框的值
-  directives:{
-    throttle:{
-      inserted(el, obj){
-        let timerId = null
-        let flag = true
-        el.addEventListener('input', function () {
-            if (!flag) return
-            flag = false
-            timerId && clearTimeout(timerId)
-            timerId = setTimeout(function () {
-                flag = true
-                obj.value()
-            }, 500)
-        })
-      }
-    }
-  },
+  // directives:{
+  //   throttle:{
+  //     inserted(el, obj){
+  //       let timerId = null
+  //       let flag = true
+  //       el.addEventListener('input', function () {
+  //           if (!flag) return
+  //           flag = false
+  //           timerId && clearTimeout(timerId)
+  //           timerId = setTimeout(function () {
+  //               flag = true
+  //               obj.value()
+  //           }, 500)
+  //       })
+  //     }
+  //   }
+  // },
   components:{
       DiogBist,
       DiogTable
@@ -83,20 +136,97 @@ export default {
     },
     handleInputVal(val){
         console.log('handleInputVal:', val)
-        this.autoShow()
+        this.autoShow();
     },
-    autoShow(){
-      //console.log('6666666666');
-      var id = this.inputSearch;
-      console.log('id is', id)
-      asset_byId(id)
+    handleInputValTwo(val){
+        console.log('handleInputValTwo:', val)
+        this.autoShowTwo();
+    },
+    handleInputValThree(val){
+        console.log('handleInputValThree:', val)
+        this.autoShowThree();
+    },
+    handleInputValFour(val){
+        console.log('handleInputValFour:', val)
+        this.autoShowFour();
+    },
+    handleInputValFive(val){
+        console.log('handleInputValFive:', val)
+        // this.inputSearchOne ='',
+        // this.inputSearchTwo = '',
+        // this.inputSearchThree = '',
+        // this.inputSearchFour = '',
+        this.autoShowFive()
+    },
+    // var country = this.inputSearchFive;
+    autoShowFive(){
+      var country = this.inputSearchFive;
+      if (country != '') {
+        asset_byCountry(country)
         .then((res) => {
-          console.log(res);
+          this.getDataFive = res;
           return res;
         })
         .catch((err) => {
           console.log('hit error for data request', err)
         })
+      }
+    },
+    autoShowFour(){
+      var city = this.inputSearchFour;
+      if (city != '') {
+        asset_byCity(city)
+        .then((res) => {
+          this.getDataFour = res;
+          return res;
+        })
+        .catch((err) => {
+          console.log('hit error for data request', err)
+        })
+      }
+    },
+    autoShowThree(){
+      var name = this.inputSearchThree;
+      if (name != '') {
+        asset_byName(name)
+        .then((res) => {
+          this.getDataThree = res;
+          return res;
+        })
+        .catch((err) => {
+          console.log('hit error for data request', err)
+        })
+      }
+    },
+    autoShowTwo(){
+      var category = this.inputSearchTwo;
+      console.log('category',category)
+      if (category != '') {
+        asset_byCategory(category)
+        .then((res) => {
+          this.getDataTwo = res;
+          return res;
+        })
+        .catch((err) => {
+          console.log('hit error for data request', err)
+        })
+      }
+    },
+    autoShow(){
+      //console.log('6666666666');
+      var id = this.inputSearchOne;
+     
+      if (id != '') {
+        asset_byId(id)
+        .then((res) => {
+          this.getData = res;
+          //console.log('send to sun id', res);
+          return res;
+        })
+        .catch((err) => {
+          console.log('hit error for data request', err)
+        })
+      } 
     },
     //delete asset
     handleRemoveAsset(assetId){
@@ -144,7 +274,7 @@ export default {
   margin-right: 15px;
 }
 .search{
-  width: 260px;
+  width: 150px;
   display: inline-block;
 }
 .funcButton .el-button{
