@@ -10,14 +10,19 @@
               v-model="inputSearchOne">
             </el-input> 
             
-            <el-input
-              style = "margin-left: 20px;"
-              class="search"
-              placeholder="Please enter category "
-              prefix-icon="el-icon-search"
-              @change="handleInputValTwo"
-              v-model="inputSearchTwo">
-            </el-input>
+            <el-select 
+            v-model="selectValue" 
+            placeholder="Select category"
+            @change="handleSelectValTwo"
+            style = "margin-left: 20px;"
+            >
+            <el-option
+              v-for="item in cateOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+            </el-select>
 
             <el-input
               class="search"
@@ -48,8 +53,8 @@
         </div>
 
         <div>
-          <el-button type="danger" @click="importBtn" class="addButton">Import Assets</el-button>
-          <el-button type="warning" @click="exportBtn" class="addButton">Export Assets</el-button>
+          <!-- <el-button type="danger" @click="importBtn" class="addButton">Import Assets</el-button> -->
+          <!-- <el-button type="warning" @click="exportBtn" class="addButton">Export Assets</el-button> -->
           <el-button type="primary" @click="addBtn" class="addButton">Add Asset</el-button>
           <el-dialog title="Add Asset" 
             :visible.sync="openOff" left 
@@ -62,41 +67,107 @@
           </el-dialog>
         </div>
     </div>
-    <div>
+    <!-- <div>
       <Diog-Table
       ref=”myUpdate”
       :childRes = "getData"
-      :childResTwo = "getDataTwo"
-      :childResThree = "getDataThree"
-      :childResFour = "getDataFour"
-      :childResFive = "getDataFive"
+      :childSelectRes = "getSelectData"
       @remove-asset="handleRemoveAsset"
       ></Diog-Table>
+    </div> -->
+
+    <div style="margin: 10px 20px;" v-if="this.tableList != []">
+        <el-table 
+            border 
+            :data="tableList" 
+            row-key="getRowKey"
+            highlight-current-row
+            v-if="(tableList.length > 0)"
+            :fit="true" 
+            style="width: 100%; margin-top: 30px;">
+            <el-table-column type="selection" width="50" reserve-selection=""></el-table-column>
+            <el-table-column prop="assetId" label="assetId" width="80" class-name="bg_blue"></el-table-column>
+            <el-table-column prop="category" label="category" width="120"> </el-table-column>
+            <el-table-column prop="assetName" label="assetName" width="140"> </el-table-column>
+            <el-table-column prop="country" label="country" width="140"> </el-table-column>
+            <el-table-column prop="city" label="city" width="140"> </el-table-column>
+            <el-table-column prop="rfidId" label="rfidId" width="150"> </el-table-column>
+            <el-table-column prop="state" label="state" width="150"> </el-table-column>
+            <el-table-column prop="value" label="value" width="150"> </el-table-column>
+            <el-table-column fixed="right" label="Oprations" width="300">
+              <template slot-scope="scope">
+                <el-button @click="checkLocation(scope.$index,scope.row)" type="text" size="small">Location Tracking</el-button>
+                <el-button @click="editClick(scope.$index,scope.row)" type="text" size="small">Asset Update</el-button>
+                <el-button @click="deleteClick(scope.$index,scope.row)" type="text" size="small">Delete</el-button>
+              </template>
+            </el-table-column>
+        </el-table>
     </div>
+<!-- update asset -->
+    <el-dialog title="Update Asset Details" 
+            :visible.sync="assetShow" left 
+            :append-to-body='true' 
+            :lock-scroll="false"
+            :before-close="handleAssetClose" 
+            :childAssetId = "getRfidId"
+             width="35%"
+             >
+            <Diog-Detail></Diog-Detail>
+    </el-dialog>
+
+    <!-- asset tracking -->
+    <el-dialog title="Asset Tracking" 
+            :visible.sync="TrackingShow" left 
+            :append-to-body='true' 
+            :lock-scroll="false"
+            :before-close= "handleTrackingClose"
+             width="35%"
+             >
+            <Diog-Track></Diog-Track>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import DiogBist from './Diog/Asset_Add.vue';
-import DiogTable from './Diog/Asset_Table.vue';
-import { asset_byId, asset_byCountry, asset_byCategory, asset_byName, asset_byCity} from '../axios/api.js';
+import DiogDetail from './Diog/Asset_Details.vue';
+import DiogTrack from './Diog/Asset_Tracking.vue';
+
+//import DiogTable from './Diog/Asset_Table.vue';
+import { asset_byId, asset_byCountry, asset_byCategory, asset_byName, asset_byCity, delete_asset} from '../axios/api.js';
 
 export default {
   name:'HomePage',
   data(){ 
     return { 
      openOff:false,
+     assetShow:false,
+     TrackingShow:false,
+
      inputSearchOne:'',
-     inputSearchTwo:'',
      inputSearchThree:'',
      inputSearchFour:'',
      inputSearchFive:'',
      
      getData:{},
-     getDataTwo:{},
-     getDataThree:{},
-     getDataFour:{},
-     getDataFive:{},
+     getSelectData:[],
+     getDataThree:[],
+     getDataCity:[],
+     getDataCountry:[],
+
+     cateOptions:[{
+      value:'OfficeUtility',
+      label:'OfficeUtility'
+     }],
+     selectValue: '',
+
+     tableList: [], 
+
+     getRfidId:'',
+     getOneAssetIndex:'',
+
+     getTrackId:'',
+     getOneLocationIndex:'',
 
     }
   }, 
@@ -120,7 +191,9 @@ export default {
   // },
   components:{
       DiogBist,
-      DiogTable
+      DiogDetail,
+      DiogTrack,
+     // DiogTable
   },
   methods: {
     importBtn(){
@@ -134,77 +207,102 @@ export default {
      // console.log('ccc')
      this.openOff = true;
     },
+    //id
     handleInputVal(val){
         console.log('handleInputVal:', val)
         this.autoShow();
+        this.selectValue = '';//2
+        this.inputSearchThree = '';//3
+        this.inputSearchFour = '';//4
+        this.inputSearchFive = '';//5
     },
-    handleInputValTwo(val){
-        console.log('handleInputValTwo:', val)
-        this.autoShowTwo();
+    //category
+    handleSelectValTwo(val){
+        console.log('category:', val)
+        if (val != '') {
+        asset_byCategory(val)
+        .then((res) => {
+          this.getSelectData = res;
+          console.log('category list res',this.getSelectData)
+          this.$nextTick(()=>{
+            this.tableList = [];
+            this.tableList = this.getSelectData;
+            this.inputSearchOne = '';//1
+            this.inputSearchThree = '';//3
+            this.inputSearchFour = '';//4
+            this.inputSearchFive = '';//5
+          })
+          return res;
+        })
+        .catch((err) => {
+          console.log('hit error for data request', err)
+        })
+        }
     },
+    //name
     handleInputValThree(val){
-        console.log('handleInputValThree:', val)
-        this.autoShowThree();
-    },
-    handleInputValFour(val){
-        console.log('handleInputValFour:', val)
-        this.autoShowFour();
-    },
-    handleInputValFive(val){
-        console.log('handleInputValFive:', val)
-        // this.inputSearchOne ='',
-        // this.inputSearchTwo = '',
-        // this.inputSearchThree = '',
-        // this.inputSearchFour = '',
-        this.autoShowFive()
-    },
-    // var country = this.inputSearchFive;
-    autoShowFive(){
-      var country = this.inputSearchFive;
-      if (country != '') {
-        asset_byCountry(country)
-        .then((res) => {
-          this.getDataFive = res;
-          return res;
-        })
-        .catch((err) => {
-          console.log('hit error for data request', err)
-        })
-      }
-    },
-    autoShowFour(){
-      var city = this.inputSearchFour;
-      if (city != '') {
-        asset_byCity(city)
-        .then((res) => {
-          this.getDataFour = res;
-          return res;
-        })
-        .catch((err) => {
-          console.log('hit error for data request', err)
-        })
-      }
-    },
-    autoShowThree(){
-      var name = this.inputSearchThree;
-      if (name != '') {
-        asset_byName(name)
+        console.log('name res:', val)
+        if (val != '') {
+        asset_byName(val)
         .then((res) => {
           this.getDataThree = res;
+          console.log('this.getDataThree',this.getDataThree)
+          this.$nextTick(()=>{
+            this.tableList = [];
+            this.tableList = this.getDataThree;
+            this.inputSearchOne = '';//1
+            this.selectValue = '';//2
+            this.inputSearchFour = '';//4
+            this.inputSearchFive = '';//5
+          })
           return res;
         })
         .catch((err) => {
           console.log('hit error for data request', err)
         })
       }
+
     },
-    autoShowTwo(){
-      var category = this.inputSearchTwo;
-      console.log('category',category)
-      if (category != '') {
-        asset_byCategory(category)
+    //city
+    handleInputValFour(val){
+        console.log('city res:', val)
+      if (val != '') {
+        asset_byCity(val)
         .then((res) => {
-          this.getDataTwo = res;
+          this.getDataCity = res;
+          console.log('this.getDataCity',this.getDataCity)
+          this.$nextTick(()=>{
+            this.tableList = [];
+            this.tableList = this.getDataCity;
+            this.inputSearchOne = '';//1
+            this.selectValue = '';//2
+            this.inputSearchThree = '';//3
+            this.inputSearchFive = '';//5
+          })
+          return res;
+        })
+        .catch((err) => {
+          console.log('hit error for data request', err)
+        })
+      }
+
+    },
+    //country
+    handleInputValFive(val){
+      console.log('country res list:', val)
+      if (val != '') {
+        asset_byCountry(val)
+        .then((res) => {
+          this.getDataCountry = res;
+          console.log('this.getDataCountry',this.getDataCountry)
+          this.$nextTick(()=>{
+            this.tableList = [];
+            this.tableList = this.getDataCountry;
+            this.inputSearchOne = '';//1
+            this.selectValue = '';//2
+            this.inputSearchThree = '';//3
+            this.inputSearchFour = '';//4
+          })
           return res;
         })
         .catch((err) => {
@@ -212,31 +310,95 @@ export default {
         })
       }
     },
+  
     autoShow(){
-      //console.log('6666666666');
       var id = this.inputSearchOne;
      
       if (id != '') {
         asset_byId(id)
         .then((res) => {
           this.getData = res;
-          //console.log('send to sun id', res);
-          return res;
+          console.log('send to sun id', res);
+            this.tableList = [];
+            this.tableList.push(res);
+            return res;
         })
         .catch((err) => {
           console.log('hit error for data request', err)
         })
       } 
     },
-    //delete asset
-    handleRemoveAsset(assetId){
-       console.log('delete the asset id is',assetId)
-       // send request to delete 
+    
+    //tracking location
+    checkLocation(index, row) {
+      console.log('Get the location index', index);
+      console.log('Get the location information', row);
+      
+      this.getTrackId = row.rfidId;
+      this.getOneLocationIndex = index;
+
+      this.$nextTick(()=>{
+        this.TrackingShow = true;
+      })
+      
     },
-    handleClose(){
+
+    //editClick 
+    editClick(index, row) {
+       console.log('update asset index', index);
+       console.log('update asset row', row);
+    
+       this.getRfidId = row.rfidId;
+       this.getOneAssetIndex = index;
+
+       this.$nextTick(()=>{
+          this.assetShow = true;
+       })
+
+    },
+    //delete asset
+    deleteClick(index, row) {
+       console.log('delete the asset id is',index)
+       console.log('delete the asset id is',row.rfidId)
+       let rfidId = '';
+       rfidId = row.rfidId;
+
+       if (rfidId != '') {
+         delete_asset(rfidId)
+         .then((res) =>{
+          console.log('delete success',res)
+          this.tableList.splice(index, 1);
+          if(res.success) {
+            this.$message({
+                type: 'success',
+                message: 'Delete the asset successful!'
+              },3000);
+          }
+          return res;
+         })
+         .catch(() => {
+            this.$message({
+              type: 'error',
+              message: 'delete the asset failed!'
+            }); 
+          })
+       }
+    },
+    handleClose() {
       this.openOff = false;
-    }
+    },
+
+    handleAssetClose() {
+      this.assetShow = false;
+    },
+    handleTrackingClose() {
+      this.TrackingShow = false;
+      this.getTrackId = '';
+
+    },
+
   },
+  
   
 }
 </script>
@@ -285,4 +447,8 @@ export default {
     margin: 40px auto;
 
   } 
+.el-dialog__header span{
+  font-size: 15px;
+  font-weight: bold;
+}
 </style>

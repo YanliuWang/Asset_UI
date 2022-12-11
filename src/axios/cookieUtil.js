@@ -1,11 +1,12 @@
 ﻿
     export default function getCookie(name) {
-        var arr, reg = new RegExp("(^|)" + name + "=([^;]*)(;|$)");
+        var arr, reg = new RegExp("(^| )"+name+"=([^;]*)(;|$)");
         // eslint-disable-next-line
         if (arr = document.cookie.match(reg))
             return unescape(arr[2]);
         else
             return null;
+        
     }
 
     export function setCookie(name, value, days) {

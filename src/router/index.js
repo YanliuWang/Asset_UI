@@ -2,7 +2,8 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import layout from "@/layout";
 import HomePage from "@/views/Home-Page";
-import Notification from "@/views/Notification";
+import SubPage from "@/views/SubPage";
+import ReportPage from "@/views/ReportPage";
 
 Vue.use(VueRouter);
 
@@ -21,7 +22,7 @@ const routes = [
 		redirect: '/login',
 		children: [{
 			path: '/Home-Page',component: HomePage, 
-      name: 'CheckPriceContract',
+      		name: 'CheckPriceContract',
 			meta: {
 				needLogin: false,
 				keepAlive: false,
@@ -29,12 +30,21 @@ const routes = [
 			}
 		},
         {
-			path: '/Notification',component: Notification, 
-			name: 'Notification',
+			path: '/SubPage',component: SubPage, 
+			name: 'SubPage',
 			meta: {
 				needLogin: false,
 				keepAlive: false,
 				title: 'Notification',
+			}
+		},
+		{
+			path: '/ReportPage',component: ReportPage, 
+			name: 'ReportPage',
+			meta: {
+				needLogin: false,
+				keepAlive: false,
+				title: 'Report',
 			}
 		},
 

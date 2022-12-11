@@ -3,7 +3,6 @@
         <el-table 
             border 
             :data="tableList" 
-            row-key="getRowKey"
             highlight-current-row
             v-if="(tableList.length > 0)"
             :fit="true" 
@@ -30,7 +29,7 @@
   </template>
   <script>
   export default {
-    name: 'AssetDetails',
+    name: 'AssetTable',
     data(){
       return{
         tableList: [], 
@@ -40,18 +39,9 @@
       childRes: {
         type:Object,
       },
-      // childResTwo: {
-      //   type:Array
-      // },
-      // childResThree: {
-      //   type:Object,
-      // },
-      // childResFour: {
-      //   type:Object,
-      // },
-      // childResFive: {
-      //   type:Object,
-      // },
+      childSelectRes: {
+        type:Object,
+      },
     },
     methods:{
       //remove-asset
@@ -63,37 +53,26 @@
         },
 
         autoShow(){ 
-          this.tableLis = [];
-
+          this.tableList = [];
           this.tableList.push(this.childRes);
-
-          // if (this.childResThree != null) {
-          //   this.tableList.push(this.childResThree);
-          // }
-
-          // if (this.childResFour != null) {
-          //   this.tableList.push(this.childResFour);
-          // }
-
-          // if (this.childResFive != null) {
-          //   this.tableList.push(this.childResFive);
-          // }
           
         }
     },
     watch: {
+      // eslint-disable-next-line 
       childRes(newVal, oldVal){
         if (newVal){
           this.autoShow();
         }
       },
-      // childResTwo(newVal, oldVal){
-      //   if (newVal){
-      //     this.autoShow();
-      //   }
-      // }
-      
-         
+      //eslint-disable-next-line 
+      childSelectRes(newVal, oldVal){
+        if (newVal){
+          console.log('6666',this.childSelectRes.res);
+          //this.autoShow();
+        }
+        
+      },        
     },
     mounted(){
       

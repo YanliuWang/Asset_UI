@@ -50,21 +50,25 @@ export default {
 
       if (this.userName != "" && this.passWord != "") {
         formData.userName = this.userName;
-        formData.passWord = this.passWord;
-
-        this.$nextTick(()=>{
-          login_request(formData)
+        formData.password = this.passWord;
+          
+        login_request(formData)
             .then((res) => {
               console.log('login res', res)
-              this.$nextTick(()=>{
+              if (res.success) { 
+                console.log(localStorage.getItem("Authorization"));
                 this.$router.push({ path: "/Home-Page" });
-              })
+
+              } else{
+                this.$message.error('login failed, please check your username and passward.');
+              }
+             
             })
             .catch((err) => {
                 console.log(err, 'hit error for add request')
                 this.$message.error('login failed, please check your username and passward.');
             })
-        })
+
       }
 
       
